@@ -44,7 +44,7 @@ flowchart TD
     score --> report[generate_report]
     report --> save[save_report]
     error --> save
-    save --> end([END])
+    save --> finish([END])
 ```
 
 O agente usa `StateGraph` do LangGraph, estado compartilhado tipado em `app/state.py` e `MemorySaver` como checkpointer simples para demonstrar memória/contexto durante a execução.
