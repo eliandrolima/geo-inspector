@@ -1,0 +1,74 @@
+{
+  "execution_id": "11111111-1111-4111-8111-111111111111",
+  "url": "https://example.com/article",
+  "analyzed_at": "2026-07-13T14:00:00Z",
+  "status": "completed",
+  "geo_score": 82.0,
+  "classification": "Boa prontidão",
+  "summary": "Exemplo demonstrativo baseado em fixture local. A página apresenta tema claro, autoria, datas, links e estrutura semântica suficiente para o MVP.",
+  "strengths": [
+    "Status HTTP acessível: Status final observado: 200.",
+    "H1 único: Quantidade de H1: 1.",
+    "Autoria detectável: Autor detectado: Elian Lima."
+  ],
+  "critical_findings": [],
+  "quick_wins": [
+    "Adicionar alt objetivo nas imagens informativas.",
+    "Disponibilizar mais fontes externas quando houver afirmações verificáveis."
+  ],
+  "findings": [
+    {
+      "category": "crawlability_access",
+      "criterion": "Status HTTP acessível",
+      "status": "passed",
+      "evidence": {
+        "source": "HTTP",
+        "observed": "Status final observado: 200."
+      },
+      "impact": "Status de sucesso permite que o conteúdo seja coletado para a auditoria.",
+      "recommendation": "Manter a página acessível por HTTP/HTTPS público com resposta 2xx.",
+      "priority": "low",
+      "confidence": 0.99
+    },
+    {
+      "category": "technical_structure",
+      "criterion": "Imagens com texto alternativo",
+      "status": "warning",
+      "evidence": {
+        "source": "HTML img",
+        "observed": "Imagens: 2; sem alt: 1."
+      },
+      "impact": "Textos alternativos melhoram acessibilidade e interpretação do conteúdo visual.",
+      "recommendation": "Adicionar alt objetivo nas imagens informativas.",
+      "priority": "medium",
+      "confidence": 0.9
+    },
+    {
+      "category": "authority_trust",
+      "criterion": "Autoria detectável",
+      "status": "passed",
+      "evidence": {
+        "source": "HTML/metadados",
+        "observed": "Autor detectado: Elian Lima."
+      },
+      "impact": "Autoria clara contribui para responsabilidade editorial percebida.",
+      "recommendation": "Adicionar nome, qualificação e perfil do autor ou responsável editorial.",
+      "priority": "high",
+      "confidence": 0.9
+    }
+  ],
+  "score_breakdown": {
+    "crawlability_access": 20.0,
+    "technical_structure": 12.0,
+    "clarity_answerability": 22.0,
+    "authority_trust": 16.0,
+    "evidence_citability": 12.0
+  },
+  "limitations": [
+    "Exemplo demonstrativo baseado em fixture local.",
+    "A pontuação é heurística.",
+    "Não existe garantia de citação por sistemas generativos.",
+    "A análise de uma página não representa todo o domínio."
+  ],
+  "disclaimer": "A pontuação é heurística e não garante citação, indexação, recomendação ou posicionamento por mecanismos generativos ou mecanismos de busca."
+}
