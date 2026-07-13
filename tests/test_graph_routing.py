@@ -5,6 +5,7 @@ from uuid import uuid4
 import httpx
 import pytest
 
+from app.api.routes import _http_status_from_state
 from app.config import Settings
 from app.graph import build_audit_graph
 from app.services.llm_factory import FakeLLMProvider
@@ -149,3 +150,10 @@ async def test_reviewer_retry_limit_generates_error(tmp_path, resolver, fixture_
     assert state["retry_count"] == 1
     assert state["report"]["status"] == "error"
     assert state["error_type"] == "review_failed"
+    assert _http_status_from_state(state) == 200
+    assert (
+        state["validation_errors"].count(
+            "Quantidade mínima de achados semânticos aplicáveis não atingida."
+        )
+        == 1
+    )

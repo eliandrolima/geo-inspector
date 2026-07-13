@@ -30,6 +30,10 @@ class LLMConfigurationError(GEOInspectorError):
     """Raised when a real LLM provider is not configured."""
 
 
+class LLMProviderError(GEOInspectorError):
+    """Raised when the configured LLM provider cannot complete a request."""
+
+
 class LLMSchemaError(GEOInspectorError):
     """Raised when an LLM response cannot be validated."""
 

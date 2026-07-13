@@ -61,8 +61,8 @@ def generate_error_report_node(state: AuditState) -> AuditState:
             findings.append(Finding.model_validate(raw))
         except ValidationError:
             continue
-    errors = state.get("validation_errors", [])
-    message = state.get("error_message") or "A auditoria não pôde ser concluída."
+    errors = _unique_messages(state.get("validation_errors", []))
+    message = _error_summary(state)
     if errors:
         message = f"{message} Detalhes: {'; '.join(errors[:3])}."
     report = AuditReport(
@@ -117,6 +117,37 @@ def _summary(state: AuditState) -> str:
             f"Resumo semântico: {semantic}"
         )
     return f"A página recebeu {score:.1f}/100 ({classification}) na auditoria GEO heurística."
+
+
+def _error_summary(state: AuditState) -> str:
+    error_type = state.get("error_type")
+    if error_type == "review_failed":
+        return (
+            "A coleta da página e a auditoria técnica foram executadas, mas os achados "
+            "semânticos retornados pela LLM não puderam ser validados após nova tentativa."
+        )
+    if error_type == "llm_configuration":
+        return (
+            "A coleta da página e a auditoria técnica foram executadas, mas o provedor "
+            "de LLM não está configurado corretamente."
+        )
+    if error_type == "llm_provider":
+        return (
+            "A coleta da página e a auditoria técnica foram executadas, mas o provedor "
+            "de LLM não conseguiu concluir a auditoria semântica."
+        )
+    return state.get("error_message") or "A auditoria não pôde ser concluída."
+
+
+def _unique_messages(messages: list[str]) -> list[str]:
+    unique: list[str] = []
+    seen: set[str] = set()
+    for message in messages:
+        normalized = message.strip()
+        if normalized and normalized not in seen:
+            unique.append(normalized)
+            seen.add(normalized)
+    return unique
 
 
 def _strengths(findings: list[Finding]) -> list[str]:
