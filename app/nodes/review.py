@@ -43,7 +43,7 @@ def review_findings_node(state: AuditState) -> AuditState:
 
     if errors:
         retry_count = int(state.get("retry_count") or 0)
-        merged_errors = [*state.get("validation_errors", []), *errors]
+        merged_errors = _unique_errors([*state.get("validation_errors", []), *errors])
         if retry_count < 1:
             return {
                 "status": "review_retry_requested",
@@ -91,3 +91,14 @@ def _check_duplicates(findings: list[Finding], errors: list[str]) -> None:
         if key in seen:
             errors.append(f"Achado duplicado detectado: {finding.criterion}.")
         seen.add(key)
+
+
+def _unique_errors(errors: list[str]) -> list[str]:
+    unique: list[str] = []
+    seen: set[str] = set()
+    for error in errors:
+        normalized = error.strip()
+        if normalized and normalized not in seen:
+            unique.append(normalized)
+            seen.add(normalized)
+    return unique

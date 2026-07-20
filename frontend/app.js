@@ -68,6 +68,9 @@ function setLoading(isLoading) {
 
 function renderReport(report) {
   resultEl.classList.remove("hidden");
+  if (report.status === "error" && !errorEl.textContent) {
+    errorEl.textContent = report.summary || "A auditoria não pôde ser concluída.";
+  }
   scoreEl.textContent = `${Number(report.geo_score || 0).toFixed(1)}/100`;
   classificationEl.textContent = report.classification || "-";
   summaryEl.textContent = report.summary || "";

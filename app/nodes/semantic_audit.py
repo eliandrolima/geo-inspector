@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import ValidationError
 
 from app.config import Settings, get_settings
-from app.exceptions import LLMConfigurationError, LLMSchemaError
+from app.exceptions import LLMConfigurationError, LLMProviderError, LLMSchemaError
 from app.schemas.audit import SemanticAuditResult
 from app.services.llm_factory import LLMProvider, get_llm_provider
 from app.state import AuditState
@@ -34,6 +34,15 @@ async def run_semantic_audit_node(
         return {
             "status": "semantic_failed",
             "error_type": "llm_configuration",
+            "error_message": message,
+            "semantic_findings": [],
+            "validation_errors": [*state.get("validation_errors", []), message],
+        }
+    except LLMProviderError as exc:
+        message = str(exc)
+        return {
+            "status": "semantic_failed",
+            "error_type": "llm_provider",
             "error_message": message,
             "semantic_findings": [],
             "validation_errors": [*state.get("validation_errors", []), message],

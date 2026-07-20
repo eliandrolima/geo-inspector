@@ -7,7 +7,7 @@ from typing import Any, Protocol
 import httpx
 
 from app.config import Settings, get_settings
-from app.exceptions import LLMConfigurationError, LLMSchemaError
+from app.exceptions import LLMConfigurationError, LLMProviderError, LLMSchemaError
 from app.prompts.semantic_audit import SYSTEM_PROMPT, build_semantic_user_prompt
 
 
@@ -57,13 +57,18 @@ class OpenAILLMProvider:
             "temperature": 0,
             "response_format": {"type": "json_object"},
         }
-        async with httpx.AsyncClient(timeout=self.settings.request_timeout_seconds) as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {self.settings.openai_api_key}"},
-                json=payload,
-            )
-            response.raise_for_status()
+        try:
+            async with httpx.AsyncClient(timeout=self.settings.request_timeout_seconds) as client:
+                response = await client.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {self.settings.openai_api_key}"},
+                    json=payload,
+                )
+                response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise _provider_status_error("OpenAI", exc) from exc
+        except httpx.HTTPError as exc:
+            raise LLMProviderError("Falha ao comunicar com o provedor OpenAI.") from exc
         content = response.json()["choices"][0]["message"]["content"]
         return _parse_json_content(content)
 
@@ -104,13 +109,18 @@ class GoogleLLMProvider:
                 "responseMimeType": "application/json",
             },
         }
-        async with httpx.AsyncClient(timeout=self.settings.request_timeout_seconds) as client:
-            response = await client.post(
-                endpoint,
-                params={"key": self.settings.google_api_key},
-                json=payload,
-            )
-            response.raise_for_status()
+        try:
+            async with httpx.AsyncClient(timeout=self.settings.request_timeout_seconds) as client:
+                response = await client.post(
+                    endpoint,
+                    params={"key": self.settings.google_api_key},
+                    json=payload,
+                )
+                response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise _provider_status_error("Google Gemini", exc) from exc
+        except httpx.HTTPError as exc:
+            raise LLMProviderError("Falha ao comunicar com o provedor Google Gemini.") from exc
         content = response.json()["candidates"][0]["content"]["parts"][0]["text"]
         return _parse_json_content(content)
 
@@ -158,3 +168,18 @@ def _parse_json_content(content: str) -> dict[str, Any]:
     if not isinstance(parsed, dict):
         raise LLMSchemaError("A resposta da LLM deve ser um objeto JSON.")
     return parsed
+
+
+def _provider_status_error(provider: str, exc: httpx.HTTPStatusError) -> Exception:
+    status_code = exc.response.status_code
+    if status_code in {401, 403}:
+        return LLMConfigurationError(
+            f"{provider} recusou a requisição. Verifique chave e permissões configuradas."
+        )
+    if status_code == 404:
+        return LLMConfigurationError(
+            f"{provider} não encontrou o modelo configurado ou ele não está disponível para a chave usada."
+        )
+    return LLMProviderError(
+        f"{provider} retornou erro HTTP {status_code} durante a auditoria semântica."
+    )

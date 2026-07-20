@@ -89,6 +89,8 @@ def _http_status_from_state(state: dict) -> int:
     if report.get("status") == "completed":
         return 200
     error_type = state.get("error_type")
+    if error_type in {"review_failed", "llm_configuration", "llm_provider", "semantic_schema"}:
+        return 200
     if error_type == "invalid_url":
         return 400
     if error_type == "fetch_failed":
