@@ -1,4 +1,11 @@
-# Slide 1 — Problema e Solução
+# GEO Inspector — Apresentação
+
+As imagens finais para apresentação estão nesta pasta:
+
+- `slide-01-problema-solucao.png`
+- `slide-02-arquitetura-tecnologias.png`
+
+## Slide 1 — Problema e Solução
 
 **Problema:** páginas pensadas só para SEO tradicional podem ser pouco claras, pouco estruturadas e difíceis de auditar para prontidão GEO.
 
@@ -12,9 +19,7 @@
 
 **Saída:** pontuação heurística, classificação, evidências, recomendações, ações rápidas e downloads em JSON/Markdown.
 
----
-
-# Slide 2 — Arquitetura e Tecnologias
+## Slide 2 — Arquitetura e Tecnologias
 
 **Fluxo LangGraph:** validação → fetch seguro → robots/sitemap → extração → planner → auditoria técnica → auditoria semântica → reviewer → pontuação → relatório.
 
